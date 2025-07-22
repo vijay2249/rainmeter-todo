@@ -404,7 +404,7 @@ function Update()
 	dynamicOutput[#dynamicOutput + 1] = "LeftMouseUpAction=[!Refresh][!Refresh]"
 
 	-- add button
-	dynamicOutput[#dynamicOutput + 1] = "[MeterAddTasks]"
+	dynamicOutput[#dynamicOutput + 1] = "[MeterAddNewTasks]"
 	dynamicOutput[#dynamicOutput + 1] = "Meter=String"
 	dynamicOutput[#dynamicOutput + 1] = "Text=#mui-create#"
 	dynamicOutput[#dynamicOutput + 1] = "FontFace=Material Icons"
@@ -532,6 +532,40 @@ function AddTask(newline)
 	return true
 end
 
+function AddNewTask(newLine)
+	tasks = GetTasks()
+	content = {}
+
+	local insertPosition = #tasks + 1
+	for i=1, #tasks do
+		if tasks[i][COLUMN_INDEX_CHECKBOX] == isSelectedMark then
+			insertPosition = i
+			break
+		end
+	end
+
+	local newTask = SplitText(newLine .. "|||")
+
+	for i = #tasks + 1, insertPosition + 1, -1 do
+		tasks[i] = tasks[i-1]
+	end
+
+	tasks[insertPosition] = newTask
+
+	for i=1, #tasks do
+		content[#content+1] = table.contact(tasks[i], divider)
+	end
+
+	local hFIle = io.open(sTaskListFile, "w+")
+	for i=1, #content do
+		hFile:write(string.format("%s\n", content[i]))
+	end
+
+	hFile.close()
+	return true
+end
+
+
 function AddToTrash(newline)
 	-- read entire task list
 	local hFile = io.open(sTrashListFile, "r")
@@ -603,7 +637,7 @@ function UndoDeletedTask()
 	local tableLength = table.getn(trashTasks)
 
 	RemoveTask(tableLength,1)
-	AddTask(trashTasks[tableLength])
+	AddNewTask(trashTasks[tableLength])
 
 end
 
